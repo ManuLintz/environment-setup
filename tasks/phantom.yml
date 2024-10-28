@@ -1,0 +1,30 @@
+- name: Install parallel
+  homebrew:
+    name: parallel
+    state: present
+  tags: parallel
+
+- name: Install gnu-sed
+  homebrew:
+    name: gnu-sed
+    state: present
+  tags: gnu_sed
+
+- name: Install postgresql (for libpq, without starting the service)
+  homebrew:
+    name: postgresql
+    state: present
+  tags: postgresql
+
+- name: Add sed alias for gnu-sed in shell configuration
+  lineinfile:
+    dest: "{{ lookup('env', 'HOME') }}/.zshrc"  # Use .bashrc for Bash, or adjust for your shell
+    line: "alias sed='gsed'"
+    create: yes
+  tags: gnu_sed_alias
+
+- name: Source shell configuration
+  shell: source {{ lookup('env', 'HOME') }}/.zshrc
+  args:
+    executable: /bin/zsh  # Adjust to /bin/bash for Bash users
+  tags: shell_reload

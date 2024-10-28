@@ -1,0 +1,12 @@
+- name: Install Docker Desktop
+  homebrew_cask:
+    name: docker
+    state: present
+  tags: docker_desktop
+  
+- name: Install Docker Compose
+  homebrew:
+    name: docker-compose
+    state: present
+  tags: docker_compose
+
