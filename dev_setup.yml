@@ -1,0 +1,62 @@
+---
+- name: Set up development environment
+  hosts: localhost
+  tasks:
+
+    - name: Install Git
+      homebrew:
+        name: git
+        state: present
+      tags: git
+  
+    - name: Check if Homebrew is installed
+      command: which brew
+      register: homebrew_check
+      ignore_errors: yes
+
+    - name: Install Homebrew if not present
+      shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      when: homebrew_check.rc != 0
+
+    - name: Install NVM
+      homebrew:
+        name: nvm
+        state: present
+      tags: nvm
+
+    - name: Add NVM configuration to shell
+      lineinfile:
+        dest: ~/.zshrc
+        line: 'export NVM_DIR="$HOME/.nvm" && . "/opt/homebrew/opt/nvm/nvm.sh"'
+        create: yes
+      tags: nvm
+
+    - name: Install Node.js (latest version via NVM)
+      shell: |
+        source ~/.zshrc
+        nvm install node
+      tags: node
+
+    - name: Install Zsh
+      homebrew:
+        name: zsh
+        state: present
+      tags: zsh
+
+    - name: Install Oh My Zsh
+      shell: |
+        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      args:
+        creates: ~/.oh-my-zsh
+      tags: oh_my_zsh
+
+    - name: Set Zsh as default shell
+      shell: chsh -s /bin/zsh
+      tags: zsh
+
+    - name: Install Visual Studio Code
+      homebrew:
+        name: visual-studio-code
+        state: present
+      tags: vscode
+
