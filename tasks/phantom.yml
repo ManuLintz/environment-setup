@@ -18,7 +18,7 @@
 
 - name: Add sed alias for gnu-sed in shell configuration
   lineinfile:
-    dest: "{{ lookup('env', 'HOME') }}/.zshrc"  # Use .bashrc for Bash, or adjust for your shell
+    dest: "{{ lookup('env', 'HOME') }}/.zshrc"
     line: "alias sed='gsed'"
     create: yes
   tags: gnu_sed_alias
@@ -26,5 +26,68 @@
 - name: Source shell configuration
   shell: source {{ lookup('env', 'HOME') }}/.zshrc
   args:
-    executable: /bin/zsh  # Adjust to /bin/bash for Bash users
+    executable: /bin/zsh
   tags: shell_reload
+
+- name: Create phantom directory
+  file:
+    path: "{{ lookup('env', 'HOME') }}/phantom"
+    state: directory
+    mode: 0755
+  tags: phantombuster
+
+- name: Clone pb2-back repository
+  git:
+    repo: "git@github.com:phantombuster/pb2-back.git"
+    dest: "{{ lookup('env', 'HOME') }}/phantom/pb2-back"
+    version: master
+  tags: phantombuster
+
+- name: Clone pb2-front repository
+  git:
+    repo: "git@github.com:phantombuster/pb2-front.git"
+    dest: "{{ lookup('env', 'HOME') }}/phantom/pb2-front"
+    version: master
+  tags: phantombuster
+
+- name: Clone phantom-store repository
+  git:
+    repo: "git@github.com:phantombuster/phantom-store.git"
+    dest: "{{ lookup('env', 'HOME') }}/phantom/phantom-store"
+    version: master
+  tags: phantombuster
+
+- name: Add PB_OPERATOR_NB_WORKERS to .zshrc
+  lineinfile:
+    dest: "{{ lookup('env', 'HOME') }}/.zshrc"
+    line: 'export PB_OPERATOR_NB_WORKERS=2'
+    create: yes
+    state: present
+  tags: pb2_back_env
+
+- name: Add BOTRUNNER_PB_OPERATOR_IP for macOS
+  lineinfile:
+    dest: "{{ lookup('env', 'HOME') }}/.zshrc"
+    line: 'export BOTRUNNER_PB_OPERATOR_IP=host.docker.internal'
+    create: yes
+    state: present
+  when: ansible_facts['os_family'] == 'Darwin'
+  tags: pb2_back_env
+
+- name: Source .zshrc to apply environment changes
+  shell: source {{ lookup('env', 'HOME') }}/.zshrc
+  args:
+    executable: /bin/zsh
+  tags: reload_env
+
+- name: Install Node.js version defined in .nvmrc
+  shell: |
+    export NVM_DIR="$HOME/.nvm" && . "/opt/homebrew/opt/nvm/nvm.sh"
+    cd "{{ lookup('env', 'HOME') }}/phantom/pb2-back" && nvm install
+  tags: node_install
+
+- name: Install node modules for pb2-back
+  npm:
+    path: "{{ lookup('env', 'HOME') }}/phantom/pb2-back"
+    state: present
+  tags: npm_install

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+#  chmod +x install
+#  install brew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+#  add brew to path
+export PATH="/opt/homebrew/bin:$PATH" >> ~/.zshrc
+
+# install ansible
+brew install ansible
+
+# run playbook
+ansible-playbook -i inventory.ini dev_setup.yml --ask-vault-pass

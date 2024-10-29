@@ -1,0 +1,27 @@
+- name: Install The Fuck utility
+  homebrew:
+    name: thefuck
+    state: present
+  tags: thefuck
+
+- name: Add The Fuck alias to .zshrc
+  lineinfile:
+    dest: "{{ lookup('env', 'HOME') }}/.zshrc"
+    line: 'eval $(thefuck --alias)'
+    create: yes
+    state: present
+  tags: thefuck
+
+- name: Add custom alias fuck for The Fuck to .zshrc
+  lineinfile:
+    dest: "{{ lookup('env', 'HOME') }}/.zshrc"
+    line: 'eval $(thefuck --alias fuck)'
+    create: yes
+    state: present
+  tags: thefuck_alias
+
+- name: Source .zshrc to apply The Fuck aliases
+  shell: source {{ lookup('env', 'HOME') }}/.zshrc
+  args:
+    executable: /bin/zsh
+  tags: thefuck_reload
