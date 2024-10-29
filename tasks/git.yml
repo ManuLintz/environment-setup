@@ -1,4 +1,4 @@
-- name: Git stuff
+- name: Git stufff
   git_config:
     name: user.email
     scope: global
