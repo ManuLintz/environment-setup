@@ -1,0 +1,12 @@
+- name: Install Neovim
+  homebrew:
+    name: nvim
+    state: present
+  tags: nvim
+
+- name: Install Nerd fonts
+  homebrew:
+    name: font-hack-nerd-font
+    state: present
+  tags: nerd-fonts
+
